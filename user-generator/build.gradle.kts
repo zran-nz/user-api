@@ -26,7 +26,7 @@ repositories {
 
 dependencies {
     implementation(project(":user-base"))
-    implementation("com.github.b1412:api-common:faef4d83e4")
+    implementation("com.github.b1412:api-common:e2e01a9bbb")
     implementation("com.github.b1412:kotlin-code-generator:f606c3539e")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.jetbrains.kotlin:kotlin-reflect")

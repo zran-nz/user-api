@@ -62,7 +62,7 @@ class CustomUserController(
                 "url" to "http://dev.domain.com/#/pages/email-active/$id",
                 "username" to user.username!!
         )
-        emailTemplateService.send("Register User", user.email!!, model)
+        emailTemplateService.send("User Register", user.email!!, model)
         emailLogService.execute()
         val uriComponents = b.path("/v1/user/{id}").buildAndExpand(user.id)
         val headers = HttpHeaders()

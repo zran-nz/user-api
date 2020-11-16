@@ -1,12 +1,14 @@
 package com.github.b1412.user.controller
 
+import arrow.core.Either.Right
+import arrow.core.Either.Left
 import com.github.b1412.cache.CacheClient
 import com.github.b1412.email.service.EmailLogService
 import com.github.b1412.email.service.EmailTemplateService
 import com.github.b1412.encrypt.DESUtil
+import com.github.b1412.error.ErrorDTO
 import com.github.b1412.extenstions.responseEntityOk
 import com.github.b1412.permission.dao.UserDao
-import com.github.b1412.user.controller.base.BasePasswordRecoveryController
 import com.github.b1412.user.dao.PasswordRecoveryDao
 import com.github.b1412.user.entity.PasswordRecovery
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,26 +40,29 @@ class PasswordRecoveryController(
     @PostMapping("apply/{username}")
     @ResponseBody
     fun apply(@PathVariable username: String): ResponseEntity<*> {
-        val user = userDao.searchOneBy(mapOf("username_eq" to username))
-        println(user.email)
-        val log = PasswordRecovery(
-                username = username,
-                email = user.email,
-                used = false,
-                expireDate = ZonedDateTime.now().plusDays(1)
-        )
-        findPwdSendLogDao.save(log)
-        val encryptId = DESUtil.encrypt(log.id!!.toString(), KEY)
-        log.encryptId = encryptId
-        findPwdSendLogDao.save(log)
+        return when (val userOpt = userDao.searchOneBy(mapOf("username_eq" to username))) {
+            is Left -> ResponseEntity.badRequest().body(ErrorDTO(message = "invalid username"))
+            is Right -> {
+                val user = userOpt.b
+                val log = PasswordRecovery(
+                        username = username,
+                        email = user.email,
+                        used = false,
+                        expireDate = ZonedDateTime.now().plusDays(1)
+                )
+                findPwdSendLogDao.save(log)
+                val encryptId = DESUtil.encrypt(log.id!!.toString(), KEY)
+                log.encryptId = encryptId
+                findPwdSendLogDao.save(log)
 
-        val model = mutableMapOf(
-                "url" to "http://dev.domain.com/#/pages/password-recovery/$encryptId"
-        )
-        println(user.email!!)
-        emailTemplateService.send("Password Recovery", user.email!!, model)
-        emailLogService.execute()
-        return ResponseEntity.noContent().build<Void>()
+                val model = mutableMapOf(
+                        "url" to "http://dev.domain.com/#/pages/password-recovery/$encryptId"
+                )
+                emailTemplateService.send("Password Recovery", user.email!!, model)
+                emailLogService.execute()
+                ResponseEntity.noContent().build<Void>()
+            }
+        }
     }
 
     @GetMapping("/status/{encryptId}")
@@ -75,27 +80,29 @@ class PasswordRecoveryController(
 
     @PostMapping("reset/{encryptId}")
     @ResponseBody
-    fun resetPwd(@PathVariable encryptId: String, newPassword: String, confirmPassword: String): Map<String, Any?> {
+    fun resetPwd(@PathVariable encryptId: String, newPassword: String, confirmPassword: String): ResponseEntity<*> {
         val decryptedId = DESUtil.decrypt(encryptId, KEY)
         val log = findPwdSendLogDao.findByIdOrNull(decryptedId.toLong())!!
         val username = log.username!!
         if (log.used!!) {
-            throw IllegalArgumentException("link used")
+            return ResponseEntity.badRequest().body(ErrorDTO(message = "link used"))
         }
-        val user = userDao.searchOneBy(mapOf("username_eq" to username))
+        return when (val userOpt = userDao.searchOneBy(mapOf("username_eq" to username))) {
+            is Left -> ResponseEntity.badRequest().body(ErrorDTO(message = "invalid username"))
+            is Right -> {
+                val user = userOpt.b
+                if (newPassword != confirmPassword) {
+                    throw IllegalArgumentException("new password doesn't equal")
+                }
+                user.setPassword(passwordEncoder.encode(newPassword))
+                userDao.save(user)
+                log.used = true
+                findPwdSendLogDao.save(log)
+                cacheClient.deleteByPattern("*$application-${user.username}*".toLowerCase())
+                ResponseEntity.noContent().build<Void>()
+            }
+        }
 
-        if (newPassword != confirmPassword) {
-            throw IllegalArgumentException("new password doesn't equal")
-        }
-        user.setPassword(passwordEncoder.encode(newPassword))
-        userDao.save(user)
-        log.used = true
-        findPwdSendLogDao.save(log)
-        cacheClient.deleteByPattern("*$application-${user.username}*".toLowerCase())
-        return mapOf(
-                "used" to log.used,
-                "message" to "success"
-        )
     }
 
     companion object {
