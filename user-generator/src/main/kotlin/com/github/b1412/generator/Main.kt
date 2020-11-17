@@ -24,7 +24,8 @@ fun main() {
             ServiceTask(),
             AllPermissionTask(),
             PermissionTask(),
-            RolePermissionRuleTask()
+            RolePermissionRuleTask(),
+            ExcelExportTask()
     )
     tasks.forEach {
         it.targetPath = System.getProperty("user.dir")

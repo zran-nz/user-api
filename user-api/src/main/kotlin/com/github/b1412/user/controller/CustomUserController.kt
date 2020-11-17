@@ -1,5 +1,6 @@
 package com.github.b1412.user.controller
 
+import com.github.b1412.cache.CacheClient
 import com.github.b1412.email.service.EmailLogService
 import com.github.b1412.email.service.EmailTemplateService
 import com.github.b1412.encrypt.DESUtil
@@ -10,7 +11,9 @@ import com.github.b1412.permission.dao.BranchDao
 import com.github.b1412.permission.dao.RoleDao
 import com.github.b1412.permission.entity.User
 import com.github.b1412.permission.service.UserService
+import org.hibernate.validator.constraints.Length
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
@@ -21,11 +24,15 @@ import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
 import javax.servlet.http.HttpServletRequest
+import javax.validation.Valid
+import javax.validation.constraints.NotEmpty
 
 
 @RestController
 @RequestMapping("/v1/user")
 class CustomUserController(
+        @Value("\${spring.application.name}")
+        val application: String,
         @Autowired
         val userService: UserService,
         @Autowired
@@ -37,7 +44,9 @@ class CustomUserController(
         @Autowired
         val roleDao: RoleDao,
         @Autowired
-        val branchDao: BranchDao
+        val branchDao: BranchDao,
+        @Autowired
+        val cacheClient: CacheClient
 ) {
     @GraphRender("user")
     @PostMapping("/register")
@@ -85,6 +94,29 @@ class CustomUserController(
         userService.save(me)
         return ResponseEntity.noContent().build<Void>()
     }
+
+    @PatchMapping("/password")
+    fun changePassword(@Valid @RequestBody passwordChange: PasswordChange): ResponseEntity<*> {
+        if (passwordChange.newPassword != passwordChange.confirmPassword) {
+            return ResponseEntity.badRequest().body(ErrorDTO(message = "newPassword and confirmPassword not equal"))
+        }
+
+        val user = SecurityContextHolder.getContext().authentication.principal as User
+
+        if (passwordEncoder.matches(passwordChange.oldPassword, user.password).not()) {
+            return ResponseEntity.badRequest().body(ErrorDTO(message = "oldPassword not correct"))
+        }
+        user.setPassword(passwordEncoder.encode(passwordChange.newPassword))
+        userService.save(user)
+        cacheClient.deleteByPattern("*$application-${user.username}*".toLowerCase())
+        return ResponseEntity.ok().build<Void>()
+    }
+
+    data class PasswordChange(
+            @Length(min = 8, max = 32) val newPassword: String,
+            @NotEmpty val oldPassword: String,
+            @NotEmpty val confirmPassword: String
+    )
 
     companion object {
         const val KEY = "aaasssdd"
