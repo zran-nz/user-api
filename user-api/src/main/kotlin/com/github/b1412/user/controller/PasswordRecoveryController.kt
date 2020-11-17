@@ -93,7 +93,7 @@ class PasswordRecoveryController(
             is Right -> {
                 val user = userOpt.b
                 if (newPassword != confirmPassword) {
-                    throw IllegalArgumentException("new password doesn't equal")
+                    return ResponseEntity.badRequest().body(ErrorDTO(message = "password doesn't equal"))
                 }
                 user.setPassword(passwordEncoder.encode(newPassword))
                 userDao.save(user)
