@@ -15,7 +15,7 @@ val bootJar: BootJar by tasks
 bootJar.enabled = false
 jar.enabled = true
 
-version = "0.1.4"
+version = "0.1.5"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
