@@ -4,7 +4,7 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 plugins {
     val kotlinVersion = "1.4.10"
     jacoco
-    id("org.springframework.boot") version "2.4.0-RC1"
+    id("org.springframework.boot") version "2.4.0"
     id("io.spring.dependency-management") version "1.0.10.RELEASE"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.jpa") version kotlinVersion
@@ -24,7 +24,7 @@ noArg {
 }
 
 group = "com.github.b1412"
-version = "0.1.3"
+version = "0.1.4"
 
 val jar: Jar by tasks
 val bootJar: BootJar by tasks
@@ -58,7 +58,7 @@ dependencies {
     val arrowVersion = "0.11.0"
     api(project(":user-generated"))
 
-    implementation("com.github.b1412:api-common:e2e01a9bbb")
+    implementation("com.github.b1412:api-common:2cbab0a995")
     implementation("com.github.b1412:permission-api:0.1.2")
     implementation("com.github.b1412:email-api:0.1.8")
 
