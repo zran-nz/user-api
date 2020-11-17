@@ -113,9 +113,9 @@ class CustomUserController(
     }
 
     data class PasswordChange(
-            @Length(min = 8, max = 32) val newPassword: String,
-            @NotEmpty val oldPassword: String,
-            @NotEmpty val confirmPassword: String
+            @Length(min = 8, max = 32) val newPassword: String? = null,
+            @NotEmpty val oldPassword: String? = null,
+            @NotEmpty val confirmPassword: String? = null
     )
 
     companion object {

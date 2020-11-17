@@ -103,7 +103,6 @@ class PasswordRecoveryController(
                 ResponseEntity.noContent().build<Void>()
             }
         }
-
     }
 
     companion object {
