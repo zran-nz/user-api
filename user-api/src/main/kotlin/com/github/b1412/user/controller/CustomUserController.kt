@@ -33,6 +33,8 @@ import javax.validation.constraints.NotEmpty
 class CustomUserController(
         @Value("\${spring.application.name}")
         val application: String,
+        @Value("\${permission.host}")
+        val host: String,
         @Autowired
         val userService: UserService,
         @Autowired
@@ -68,7 +70,7 @@ class CustomUserController(
         userService.save(user)
         val id = DESUtil.encrypt(user.id.toString(), KEY)
         val model = mutableMapOf(
-                "url" to "http://dev.domain.com/#/pages/email-active/$id",
+                "url" to "${host}/#/pages/email-active/$id",
                 "username" to user.username!!
         )
         emailTemplateService.send("User Register", user.email!!, model)
