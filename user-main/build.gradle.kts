@@ -39,8 +39,8 @@ repositories {
 dependencies {
     api(project(":user-api"))
     implementation("com.github.b1412:api-common:5ba35feadd")
-    implementation("com.github.b1412:permission-api:0.1.11")
-    implementation("com.github.b1412:email-api:0.1.12")
+    implementation("com.github.b1412:permission-api:0.1.12")
+    implementation("com.github.b1412:email-api:0.1.13")
 
     val arrowVersion = "0.11.0"
     implementation("org.jetbrains.kotlin:kotlin-reflect")
