@@ -22,12 +22,21 @@ repositories {
     mavenCentral()
     maven { url = uri("https://repo.spring.io/milestone") }
     maven(url = "https://jitpack.io")
+    maven {
+        url = uri("https://maven.pkg.github.com/b1412/permission-api")
+        credentials {
+            username = System.getenv("GITHUB_ACTOR")
+            password = System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 dependencies {
     implementation(project(":user-base"))
-    implementation("com.github.b1412:api-common:5ba35feadd")
+    implementation("com.github.b1412:permission-base:0.1.10")
     implementation("com.github.b1412:kotlin-code-generator:f606c3539e")
+    implementation("com.github.b1412:generator-tasks:f3f6ac72da")
+
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
