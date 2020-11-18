@@ -30,6 +30,14 @@ class PasswordRecoveryExcelParsingRule(
     fileParser.addCell(8, "createdAt")
     fileParser.addCell(9, "updatedAt")
     fileParser.addCell(10, "deletedAt")
+        fileParser.addCell(2, "category", EntityConvertor().apply {
+                name = "Creator"
+                em = entityManager
+        })
+        fileParser.addCell(2, "category", EntityConvertor().apply {
+                name = "Modifier"
+                em = entityManager
+        })
         return fileParser
     }
 
