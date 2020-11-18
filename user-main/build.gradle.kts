@@ -28,7 +28,7 @@ repositories {
     maven { url = uri("https://repo.spring.io/milestone") }
     maven(url = "https://jitpack.io")
     maven {
-        url = uri("https://maven.pkg.github.com/b1412/user-api")
+        url = uri("https://maven.pkg.github.com/b1412/permission-api")
         credentials {
             username = System.getenv("GITHUB_ACTOR")
             password = System.getenv("GITHUB_TOKEN")
@@ -38,9 +38,9 @@ repositories {
 
 dependencies {
     api(project(":user-api"))
-    implementation("com.github.b1412:api-common:a95b7b6c49")
-    implementation("com.github.b1412:permission-api:0.1.8")
-    implementation("com.github.b1412:email-api:0.1.11")
+    implementation("com.github.b1412:api-common:5ba35feadd")
+    implementation("com.github.b1412:permission-api:0.1.10")
+    implementation("com.github.b1412:email-api:0.1.12")
 
     val arrowVersion = "0.11.0"
     implementation("org.jetbrains.kotlin:kotlin-reflect")
