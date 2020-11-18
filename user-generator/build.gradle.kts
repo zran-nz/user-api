@@ -33,9 +33,9 @@ repositories {
 
 dependencies {
     implementation(project(":user-base"))
-    implementation("com.github.b1412:permission-base:0.1.10")
-    implementation("com.github.b1412:kotlin-code-generator:f606c3539e")
-    implementation("com.github.b1412:generator-tasks:f3f6ac72da")
+    implementation("com.github.b1412:permission-base:0.1.11")
+    implementation("com.github.b1412:kotlin-code-generator:790498a17d")
+    implementation("com.github.b1412:generator-tasks:ccce4a1161")
 
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
