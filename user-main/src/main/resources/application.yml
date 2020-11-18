@@ -22,6 +22,7 @@ spring:
 permission:
   jwt:
     anonymousUrls: /v1/password-recovery/*/**,/v1/email-template/send/*/**,/v1/enum/*,/v1/login,/graphiql,/graphql,/vendor/**,/v1/menu/**,/actuator/**,/v1/user/register,/v1/user/active/*,/v1/attachment/download,/v1/attachment/upload,/files/*,/images/*,/v1/find-pwd-send-log/**/*
+  host: http://dev.domain.com
 
 aws:
   s3:

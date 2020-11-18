@@ -25,6 +25,8 @@ import java.time.ZonedDateTime
 class PasswordRecoveryController(
         @Value("\${spring.application.name}")
         val application: String,
+        @Value("\${permission.host}")
+        val host: String,
         @Autowired
         val cacheClient: CacheClient,
         @Autowired
@@ -57,7 +59,7 @@ class PasswordRecoveryController(
                 findPwdSendLogDao.save(log)
 
                 val model = mutableMapOf(
-                        "url" to "http://dev.domain.com/#/pages/password-recovery/$encryptId"
+                        "url" to "${host}/#/pages/password-recovery/$encryptId"
                 )
                 emailTemplateService.send("Password Recovery", user.email!!, model)
                 emailLogService.execute()

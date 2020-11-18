@@ -38,7 +38,7 @@ repositories {
 
 dependencies {
     api(project(":user-api"))
-    implementation("com.github.b1412:api-common:2cbab0a995")
+    implementation("com.github.b1412:api-common:a95b7b6c49")
     implementation("com.github.b1412:permission-api:0.1.8")
     implementation("com.github.b1412:email-api:0.1.11")
 
