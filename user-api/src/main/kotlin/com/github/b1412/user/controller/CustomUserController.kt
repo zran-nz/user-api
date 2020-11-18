@@ -54,9 +54,9 @@ class CustomUserController(
     @PostMapping("/register")
     @Transactional
     fun register(@Validated @RequestBody user: User, request: HttpServletRequest, b: UriComponentsBuilder): ResponseEntity<*> {
-        if (user.password != user.confirmPassword) {
-            return ResponseEntity.badRequest().body(ErrorDTO(message = "password not equal"))
-        }
+//        if (user.password != user.confirmPassword) {
+//            return ResponseEntity.badRequest().body(ErrorDTO(message = "password not equal"))
+//        }
         val clientId = "4"
         user.setUsername(user.email!!)
         user.setPassword(passwordEncoder.encode(user.password))
