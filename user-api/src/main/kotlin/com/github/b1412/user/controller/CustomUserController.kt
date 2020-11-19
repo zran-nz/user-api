@@ -1,7 +1,6 @@
 package com.github.b1412.user.controller
 
 import arrow.core.orNull
-import com.github.b1412.email.service.EmailLogService
 import com.github.b1412.email.service.EmailTemplateService
 import com.github.b1412.encrypt.DESUtil
 import com.github.b1412.error.ErrorDTO
@@ -49,9 +48,12 @@ class CustomUserController(
     @GraphRender("user")
     @PostMapping("/register")
     fun register(@Validated @RequestBody user: User, request: HttpServletRequest, b: UriComponentsBuilder): ResponseEntity<*> {
+        //TODO
+
         //       if (user.password != user.confirmPassword) {
         //           return ResponseEntity.badRequest().body(ErrorDTO(message = "password not equal"))
         //       }
+
         val clientId = "4"
         user.setUsername(user.email!!)
         user.setPassword(passwordEncoder.encode(user.password))
@@ -91,7 +93,6 @@ class CustomUserController(
         return ResponseEntity.noContent().build<Void>()
     }
 
-    // TODO
     @PatchMapping("/password")
     fun changePassword(@Valid @RequestBody passwordChange: PasswordChange): ResponseEntity<*> {
         if (passwordChange.newPassword != passwordChange.confirmPassword) {

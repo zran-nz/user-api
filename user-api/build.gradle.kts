@@ -59,8 +59,8 @@ dependencies {
     api(project(":user-generated"))
 
     implementation("com.github.b1412:api-common:5ba35feadd")
-    implementation("com.github.b1412:permission-api:0.1.13")
-    implementation("com.github.b1412:email-api:0.1.15")
+    implementation("com.github.b1412:permission-api:0.1.15")
+    implementation("com.github.b1412:email-api:0.1.18")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
