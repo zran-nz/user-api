@@ -62,7 +62,6 @@ class PasswordRecoveryController(
                         "url" to "${host}/#/pages/password-recovery/$encryptId"
                 )
                 emailTemplateService.send("Password Recovery", user.email!!, model)
-                emailLogService.execute()
                 ResponseEntity.noContent().build<Void>()
             }
         }

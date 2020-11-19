@@ -1,5 +1,6 @@
 package com.github.b1412.user.controller
 
+import arrow.core.orNull
 import com.github.b1412.email.service.EmailLogService
 import com.github.b1412.email.service.EmailTemplateService
 import com.github.b1412.encrypt.DESUtil
@@ -41,8 +42,6 @@ class CustomUserController(
         @Autowired
         val emailTemplateService: EmailTemplateService,
         @Autowired
-        val emailLogService: EmailLogService,
-        @Autowired
         val roleDao: RoleDao,
         @Autowired
         val branchDao: BranchDao
@@ -70,7 +69,6 @@ class CustomUserController(
                 "username" to user.username!!
         )
         emailTemplateService.send("User Register", user.email!!, model)
-        emailLogService.execute()
         val uriComponents = b.path("/v1/user/{id}").buildAndExpand(user.id)
         val headers = HttpHeaders()
         headers.location = uriComponents.toUri()
@@ -93,6 +91,7 @@ class CustomUserController(
         return ResponseEntity.noContent().build<Void>()
     }
 
+    // TODO
     @PatchMapping("/password")
     fun changePassword(@Valid @RequestBody passwordChange: PasswordChange): ResponseEntity<*> {
         if (passwordChange.newPassword != passwordChange.confirmPassword) {
