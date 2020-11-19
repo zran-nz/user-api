@@ -1,6 +1,5 @@
 package com.github.b1412.user.controller
 
-import com.github.b1412.cache.CacheClient
 import com.github.b1412.email.service.EmailLogService
 import com.github.b1412.email.service.EmailTemplateService
 import com.github.b1412.encrypt.DESUtil
@@ -27,7 +26,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
 import javax.validation.constraints.NotEmpty
 
-
+@Transactional
 @RestController
 @RequestMapping("/v1/user")
 class CustomUserController(
@@ -46,17 +45,14 @@ class CustomUserController(
         @Autowired
         val roleDao: RoleDao,
         @Autowired
-        val branchDao: BranchDao,
-        @Autowired
-        val cacheClient: CacheClient
+        val branchDao: BranchDao
 ) {
     @GraphRender("user")
     @PostMapping("/register")
-    @Transactional
     fun register(@Validated @RequestBody user: User, request: HttpServletRequest, b: UriComponentsBuilder): ResponseEntity<*> {
- //       if (user.password != user.confirmPassword) {
- //           return ResponseEntity.badRequest().body(ErrorDTO(message = "password not equal"))
- //       }
+        //       if (user.password != user.confirmPassword) {
+        //           return ResponseEntity.badRequest().body(ErrorDTO(message = "password not equal"))
+        //       }
         val clientId = "4"
         user.setUsername(user.email!!)
         user.setPassword(passwordEncoder.encode(user.password))
@@ -103,14 +99,15 @@ class CustomUserController(
             return ResponseEntity.badRequest().body(ErrorDTO(message = "newPassword and confirmPassword not equal"))
         }
 
-        val user = SecurityContextHolder.getContext().authentication.principal as User
-
+        var user = SecurityContextHolder.getContext().authentication.principal as User
+        // user = userService.findByIdOrNull(user.id)!!
+        user = userService.searchOneBy(mapOf("username" to user.username!!)).orNull()!!
         if (passwordEncoder.matches(passwordChange.oldPassword, user.password).not()) {
             return ResponseEntity.badRequest().body(ErrorDTO(message = "oldPassword not correct"))
         }
         user.setPassword(passwordEncoder.encode(passwordChange.newPassword))
         userService.save(user)
-        cacheClient.deleteByPattern("*$application-${user.username}*".toLowerCase())
+        //  cacheClient.deleteByPattern("*$application-${user.username}*".toLowerCase())
         return ResponseEntity.ok().build<Void>()
     }
 
