@@ -70,7 +70,7 @@ class CustomUserController(
                 "username" to user.username!!
         )
         emailTemplateService.send("User Register", user.email!!, model)
-        val uriComponents = b.path("/v1/user/{id}").buildAndExpand(user.id)
+        val uriComponents = b.path("/v1/user/active/{id}").buildAndExpand(id)
         val headers = HttpHeaders()
         headers.location = uriComponents.toUri()
         return ResponseEntity.created(uriComponents.toUri()).build<Void>()
@@ -83,7 +83,6 @@ class CustomUserController(
         return me.responseEntityOk()
     }
 
-    @GraphRender("user")
     @PostMapping("/active/{id}")
     fun active(@PathVariable id: String): ResponseEntity<*> {
         val me = userService.findByIdOrNull(DESUtil.decrypt(id, KEY).toLong())!!
