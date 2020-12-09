@@ -27,10 +27,6 @@ allOpen {
     annotation("javax.persistence.MappedSuperclass")
 }
 
-group = "com.github.b1412"
-version = "0.1.18"
-java.sourceCompatibility = JavaVersion.VERSION_11
-
 
 repositories {
     mavenCentral()

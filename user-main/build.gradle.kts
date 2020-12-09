@@ -20,8 +20,6 @@ noArg {
     annotation("javax.persistence.MappedSuperclass")
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_11
-
 repositories {
     mavenCentral()
     maven { url = uri("https://repo.spring.io/milestone") }

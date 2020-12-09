@@ -45,7 +45,6 @@ class CustomUserController(
         @Autowired
         val branchDao: BranchDao
 ) {
-    @GraphRender("user")
     @PostMapping("/register")
     fun register(@Validated @RequestBody user: User, request: HttpServletRequest, b: UriComponentsBuilder): ResponseEntity<*> {
         //TODO

@@ -24,8 +24,6 @@ noArg {
     annotation("javax.persistence.MappedSuperclass")
 }
 
-group = "com.github.b1412"
-version = "0.1.18"
 
 val jar: Jar by tasks
 val bootJar: BootJar by tasks

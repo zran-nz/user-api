@@ -16,9 +16,6 @@ val bootJar: BootJar by tasks
 bootJar.enabled = false
 jar.enabled = true
 
-version = "0.1.18"
-java.sourceCompatibility = JavaVersion.VERSION_11
-
 repositories {
     mavenCentral()
     maven { url = uri("https://repo.spring.io/milestone") }
