@@ -44,8 +44,10 @@ repositories {
     }
 }
 
+val permissionVersion: String by project
+
 dependencies {
-    implementation("com.github.b1412:permission-base:0.1.22")
+    implementation("com.github.b1412:permission-base:${permissionVersion}")
 }
 
 tasks.withType<KotlinCompile> {

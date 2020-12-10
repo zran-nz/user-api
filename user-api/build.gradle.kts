@@ -31,8 +31,6 @@ val bootJar: BootJar by tasks
 bootJar.enabled = false
 jar.enabled = true
 
-java.sourceCompatibility = JavaVersion.VERSION_11
-
 repositories {
     mavenCentral()
     maven { url = uri("https://repo.spring.io/milestone") }
@@ -53,9 +51,11 @@ repositories {
     }
 }
 
+val permissionVersion: String by project
+
 dependencies {
     api(project(":user-generated"))
-    implementation("com.github.b1412:permission-api:0.1.22")
+    implementation("com.github.b1412:permission-api:${permissionVersion}")
     implementation("com.github.b1412:email-api:0.1.20")
 
 }

@@ -16,6 +16,7 @@ val bootJar: BootJar by tasks
 bootJar.enabled = false
 jar.enabled = true
 
+
 repositories {
     mavenCentral()
     maven { url = uri("https://repo.spring.io/milestone") }
@@ -27,13 +28,23 @@ repositories {
             password = System.getenv("GITHUB_TOKEN")
         }
     }
+    maven {
+        url = uri("https://maven.pkg.github.com/b1412/generator-tasks")
+        credentials {
+            username = System.getenv("GITHUB_ACTOR")
+            password = System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
+
+val permissionVersion: String by project
+val tasksVersion: String by project
 
 dependencies {
     implementation(project(":user-base"))
-    implementation("com.github.b1412:permission-base:0.1.22")
-    implementation("com.github.b1412:kotlin-code-generator:f6f060d6fb")
-    implementation("com.github.b1412:generator-tasks:b951142023")
+    implementation("com.github.b1412:permission-base:${permissionVersion}")
+    implementation("com.github.b1412:kotlin-code-generator:77e431bb75")
+    implementation("com.github.b1412:generator-tasks:${tasksVersion}")
 }
 
 tasks.withType<KotlinCompile> {

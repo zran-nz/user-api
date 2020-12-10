@@ -2,26 +2,28 @@ spring:
   redis:
     host: redis
   application:
-    name: email
+    name: user
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: cannon
-    url: jdbc:mysql://mysql:3306/cannon?characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+    url: jdbc:postgresql://postgres:5432/postgres
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
+        default_schema: public
         format_sql: true
-  profiles:
-    active: local
-  autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+        globally_quoted_identifiers: true
+        types:
+          print:
+            banner: false
+    open-in-view: true
 
 permission:
   jwt:
-    anonymousUrls: /v1/password-recovery/*/**,/v1/email-template/send/*/**,/v1/enum/*,/v1/login,/graphiql,/graphql,/vendor/**,/v1/menu/**,/actuator/**,/v1/user/register,/v1/user/active/*,/v1/attachment/download,/v1/attachment/upload,/files/*,/images/*,/v1/find-pwd-send-log/**/*
+    anonymousUrls: /v1/user/create,/v1/password-recovery/*/**,/v1/email-template/send/*/**,/v1/enum/*,/v1/login,/graphiql,/graphql,/vendor/**,/v1/menu/**,/actuator/**,/v1/user/register,/v1/user/active/*,/v1/attachment/download,/v1/attachment/upload,/files/*,/images/*,/v1/find-pwd-send-log/**/*
   host: http://dev.domain.com
 
 aws:

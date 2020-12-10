@@ -1,6 +1,5 @@
 package com.github.b1412.user.controller
 
-import arrow.core.orNull
 import com.github.b1412.email.service.EmailTemplateService
 import com.github.b1412.encrypt.DESUtil
 import com.github.b1412.error.ErrorDTO
@@ -14,7 +13,6 @@ import org.hibernate.validator.constraints.Length
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -70,10 +68,24 @@ class CustomUserController(
                 "username" to user.username!!
         )
         emailTemplateService.send("User Register", user.email!!, model)
-        val uriComponents = b.path("/v1/user/active/{id}").buildAndExpand(id)
-        val headers = HttpHeaders()
-        headers.location = uriComponents.toUri()
+        val uriComponents = b.path("{id}").buildAndExpand(id)
         return ResponseEntity.created(uriComponents.toUri()).build<Void>()
+    }
+
+    @PostMapping("/create")
+    fun create(@Validated @RequestBody user: User, request: HttpServletRequest, b: UriComponentsBuilder): ResponseEntity<*> {
+        val clientId = "4"
+        user.setUsername(user.email!!)
+        user.setPassword(passwordEncoder.encode(user.password))
+        user.active = true
+        user.clientId = clientId
+
+        val role = roleDao.findByIdOrNull(user.role!!.id)
+        val branch = branchDao.findByIdOrNull(1L)
+        user.role = role
+        user.branch = branch
+        userService.save(user)
+        return ResponseEntity.created(b.path("/v1/user/{id}").buildAndExpand(user.id).toUri()).build<Void>()
     }
 
     @GraphRender("user")

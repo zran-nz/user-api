@@ -41,9 +41,11 @@ repositories {
     }
 }
 
+val permissionVersion: String by project
+
 dependencies {
     api(project(":user-base"))
-    api("com.github.b1412:permission-base:0.1.22")
+    api("com.github.b1412:permission-base:${permissionVersion}")
 }
 
 tasks.withType<KotlinCompile> {
