@@ -9,7 +9,7 @@ import com.github.b1412.permission.dao.BranchDao
 import com.github.b1412.permission.dao.RoleDao
 import com.github.b1412.permission.entity.User
 import com.github.b1412.permission.service.UserService
-import com.github.b1412.user.event.NewUserAction
+import com.github.b1412.user.event.NewUserAction.JOIN_CLASSROOM
 import com.github.b1412.user.event.NewUserEvent
 import org.hibernate.validator.constraints.Length
 import org.springframework.beans.factory.annotation.Autowired
@@ -79,8 +79,9 @@ class CustomUserController(
         )
         emailTemplateService.send("User Register", user.email!!, model)
 
+
         applicationEventPublisher.publishEvent(
-            NewUserEvent(filter + Pair("userId", user.id.toString()), NewUserAction.JOIN_CLASSROOM.name)
+            NewUserEvent(filter + Pair("userId", DESUtil.encrypt(user.id.toString(), KEY)), JOIN_CLASSROOM.name)
         )
         val uriComponents = b.path("{id}").buildAndExpand(id)
         return ResponseEntity.created(uriComponents.toUri()).build<Void>()
