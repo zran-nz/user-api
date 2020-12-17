@@ -78,7 +78,10 @@ class CustomUserController(
             "username" to user.username!!
         )
         emailTemplateService.send("User Register", user.email!!, model)
-        applicationEventPublisher.publishEvent(NewUserEvent(user.id!!, filter, NewUserAction.JOIN_CLASSROOM.name))
+
+        applicationEventPublisher.publishEvent(
+            NewUserEvent(filter + Pair("userId", user.id.toString()), NewUserAction.JOIN_CLASSROOM.name)
+        )
         val uriComponents = b.path("{id}").buildAndExpand(id)
         return ResponseEntity.created(uriComponents.toUri()).build<Void>()
     }
