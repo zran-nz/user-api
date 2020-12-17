@@ -9,6 +9,6 @@ import org.springframework.stereotype.Service
 
 @Service
 class PasswordRecoveryService(
-        @Autowired
-        val dao: PasswordRecoveryDao
+    @Autowired
+    val dao: PasswordRecoveryDao
 ) : BaseService<PasswordRecovery, Long>(dao = dao)

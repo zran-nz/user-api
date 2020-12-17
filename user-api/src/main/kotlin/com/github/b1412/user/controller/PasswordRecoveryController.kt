@@ -1,9 +1,8 @@
 package com.github.b1412.user.controller
 
-import arrow.core.Either.Right
 import arrow.core.Either.Left
+import arrow.core.Either.Right
 import com.github.b1412.cache.CacheClient
-import com.github.b1412.email.service.EmailLogService
 import com.github.b1412.email.service.EmailTemplateService
 import com.github.b1412.encrypt.DESUtil
 import com.github.b1412.error.ErrorDTO
@@ -23,22 +22,20 @@ import java.time.ZonedDateTime
 @RestController
 @RequestMapping("/v1/password-recovery")
 class PasswordRecoveryController(
-        @Value("\${spring.application.name}")
-        val application: String,
-        @Value("\${permission.host}")
-        val host: String,
-        @Autowired
-        val cacheClient: CacheClient,
-        @Autowired
-        val findPwdSendLogDao: PasswordRecoveryDao,
-        @Autowired
-        val userDao: UserDao,
-        @Autowired
-        val passwordEncoder: PasswordEncoder,
-        @Autowired
-        val emailTemplateService: EmailTemplateService,
-        @Autowired
-        val emailLogService: EmailLogService
+    @Value("\${spring.application.name}")
+    val application: String,
+    @Value("\${permission.host}")
+    val host: String,
+    @Autowired
+    val cacheClient: CacheClient,
+    @Autowired
+    val passwordRecoveryDao: PasswordRecoveryDao,
+    @Autowired
+    val userDao: UserDao,
+    @Autowired
+    val passwordEncoder: PasswordEncoder,
+    @Autowired
+    val emailTemplateService: EmailTemplateService
 ) : BasePasswordRecoveryController() {
     @PostMapping("apply/{username}")
     @ResponseBody
@@ -48,18 +45,18 @@ class PasswordRecoveryController(
             is Right -> {
                 val user = userOpt.b
                 val log = PasswordRecovery(
-                        username = username,
-                        email = user.email,
-                        used = false,
-                        expireDate = ZonedDateTime.now().plusDays(1)
+                    username = username,
+                    email = user.email,
+                    used = false,
+                    expireDate = ZonedDateTime.now().plusDays(1)
                 )
-                findPwdSendLogDao.save(log)
+                passwordRecoveryDao.save(log)
                 val encryptId = DESUtil.encrypt(log.id!!.toString(), KEY)
                 log.encryptId = encryptId
-                findPwdSendLogDao.save(log)
+                passwordRecoveryDao.save(log)
 
                 val model = mutableMapOf(
-                        "url" to "${host}/#/pages/password-recovery/$encryptId"
+                    "url" to "${host}/#/pages/password-recovery/$encryptId"
                 )
                 emailTemplateService.send("Password Recovery", user.email!!, model)
                 ResponseEntity.noContent().build<Void>()
@@ -70,11 +67,11 @@ class PasswordRecoveryController(
     @GetMapping("/status/{encryptId}")
     fun getByEncryptId(@PathVariable encryptId: String): ResponseEntity<Map<String, Any?>> {
         val decryptedId = DESUtil.decrypt(encryptId, KEY)
-        val log = findPwdSendLogDao.findByIdOrNull(decryptedId.toLong())!!
+        val log = passwordRecoveryDao.findByIdOrNull(decryptedId.toLong())!!
         val isExpired = ZonedDateTime.now().isAfter(log.expireDate)
         val map = mapOf(
-                "expired" to isExpired,
-                "used" to log.used
+            "expired" to isExpired,
+            "used" to log.used
         )
         return map.responseEntityOk()
     }
@@ -84,7 +81,7 @@ class PasswordRecoveryController(
     @ResponseBody
     fun resetPwd(@PathVariable encryptId: String, newPassword: String, confirmPassword: String): ResponseEntity<*> {
         val decryptedId = DESUtil.decrypt(encryptId, KEY)
-        val log = findPwdSendLogDao.findByIdOrNull(decryptedId.toLong())!!
+        val log = passwordRecoveryDao.findByIdOrNull(decryptedId.toLong())!!
         val username = log.username!!
         if (log.used!!) {
             return ResponseEntity.badRequest().body(ErrorDTO(message = "link used"))
@@ -99,7 +96,7 @@ class PasswordRecoveryController(
                 user.setPassword(passwordEncoder.encode(newPassword))
                 userDao.save(user)
                 log.used = true
-                findPwdSendLogDao.save(log)
+                passwordRecoveryDao.save(log)
                 cacheClient.deleteByPattern("*$application-${user.username}*".toLowerCase())
                 ResponseEntity.noContent().build<Void>()
             }
