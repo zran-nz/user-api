@@ -1,4 +1,4 @@
-package com.github.b1412.user.controller
+package com.github.b1412.user.controller.custom
 
 import com.github.b1412.email.service.EmailTemplateService
 import com.github.b1412.encrypt.DESUtil
@@ -9,7 +9,7 @@ import com.github.b1412.permission.dao.BranchDao
 import com.github.b1412.permission.dao.RoleDao
 import com.github.b1412.permission.entity.User
 import com.github.b1412.permission.service.UserService
-import com.github.b1412.user.event.NewUserAction.JOIN_CLASSROOM
+import com.github.b1412.user.event.NewUserAction
 import com.github.b1412.user.event.NewUserEvent
 import org.hibernate.validator.constraints.Length
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,7 +30,7 @@ import javax.validation.constraints.NotEmpty
 @Transactional
 @RestController
 @RequestMapping("/v1/user")
-class CustomUserController(
+class UserControllerCustom(
     @Value("\${spring.application.name}")
     val application: String,
     @Value("\${permission.host}")
@@ -81,7 +81,10 @@ class CustomUserController(
 
 
         applicationEventPublisher.publishEvent(
-            NewUserEvent(filter + Pair("userId", DESUtil.encrypt(user.id.toString(), KEY)), JOIN_CLASSROOM.name)
+            NewUserEvent(
+                filter + Pair("userId", DESUtil.encrypt(user.id.toString(), KEY)),
+                NewUserAction.JOIN_CLASSROOM.name
+            )
         )
         val uriComponents = b.path("{id}").buildAndExpand(id)
         return ResponseEntity.created(uriComponents.toUri()).build<Void>()
