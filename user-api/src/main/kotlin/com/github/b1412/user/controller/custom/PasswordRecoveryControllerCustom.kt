@@ -7,6 +7,7 @@ import com.github.b1412.email.service.EmailTemplateService
 import com.github.b1412.encrypt.DESUtil
 import com.github.b1412.error.ErrorDTO
 import com.github.b1412.extenstions.responseEntityOk
+import com.github.b1412.generator.metadata.PermissionFeatureIgnore
 import com.github.b1412.permission.dao.UserDao
 import com.github.b1412.user.dao.PasswordRecoveryDao
 import com.github.b1412.user.entity.PasswordRecovery
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.*
 import java.time.ZonedDateTime
 
+@PermissionFeatureIgnore
 @RestController
 @RequestMapping("/v1/password-recovery")
 class PasswordRecoveryControllerCustom(
@@ -74,7 +76,6 @@ class PasswordRecoveryControllerCustom(
         )
         return map.responseEntityOk()
     }
-
 
     @PostMapping("/reset/{encryptId}")
     @ResponseBody

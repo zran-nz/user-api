@@ -4,6 +4,9 @@ import com.github.b1412.email.service.EmailTemplateService
 import com.github.b1412.encrypt.DESUtil
 import com.github.b1412.error.ErrorDTO
 import com.github.b1412.extenstions.responseEntityOk
+import com.github.b1412.generator.metadata.PermissionFeature
+import com.github.b1412.generator.metadata.PermissionFeatureIgnore
+import com.github.b1412.generator.metadata.PermissionFeatures
 import com.github.b1412.json.GraphRender
 import com.github.b1412.permission.dao.BranchDao
 import com.github.b1412.permission.dao.RoleDao
@@ -48,6 +51,7 @@ class UserControllerCustom(
     @Autowired
     val applicationEventPublisher: ApplicationEventPublisher
 ) {
+    @PermissionFeatureIgnore
     @PostMapping("/register")
     fun register(
         @Validated @RequestBody user: User,
@@ -90,7 +94,11 @@ class UserControllerCustom(
         return ResponseEntity.created(uriComponents.toUri()).build<Void>()
     }
 
+
     @PostMapping("/create")
+    @PermissionFeatures(
+        PermissionFeature(role = "admin", rule = "all")
+    )
     fun create(
         @Validated @RequestBody user: User,
         request: HttpServletRequest,
@@ -110,13 +118,19 @@ class UserControllerCustom(
         return ResponseEntity.created(b.path("/v1/user/{id}").buildAndExpand(user.id).toUri()).build<Void>()
     }
 
-    @GraphRender("user")
     @GetMapping("/me")
+    @GraphRender("user")
+    @PermissionFeatures(
+        PermissionFeature(role = "admin", rule = "all"),
+        PermissionFeature(role = "teaching staff", rule = "all"),
+        PermissionFeature(role = "student", rule = "all")
+    )
     fun me(): ResponseEntity<*> {
         val me = SecurityContextHolder.getContext().authentication.principal as User
         return me.responseEntityOk()
     }
 
+    @PermissionFeatureIgnore
     @PostMapping("/active/{id}")
     fun active(@PathVariable id: String): ResponseEntity<*> {
         val me = userService.findByIdOrNull(DESUtil.decrypt(id, KEY).toLong())!!
@@ -126,6 +140,11 @@ class UserControllerCustom(
     }
 
     @PatchMapping("/password")
+    @PermissionFeatures(
+        PermissionFeature(role = "admin", rule = "all"),
+        PermissionFeature(role = "teaching staff", rule = "all"),
+        PermissionFeature(role = "student", rule = "all")
+    )
     fun changePassword(@Valid @RequestBody passwordChange: PasswordChange): ResponseEntity<*> {
         if (passwordChange.newPassword != passwordChange.confirmPassword) {
             return ResponseEntity.badRequest().body(ErrorDTO(message = "newPassword and confirmPassword not equal"))
