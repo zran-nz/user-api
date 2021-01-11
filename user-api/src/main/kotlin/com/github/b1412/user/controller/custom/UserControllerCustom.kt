@@ -123,6 +123,7 @@ class UserControllerCustom(
     @GraphRender("user")
     @PermissionFeatures(
         PermissionFeature(role = "admin", rule = "all"),
+        PermissionFeature(role = "app admin", rule = "all"),
         PermissionFeature(role = "teaching staff", rule = "all"),
         PermissionFeature(role = "student", rule = "all")
     )
@@ -143,6 +144,7 @@ class UserControllerCustom(
     @PatchMapping("/password")
     @PermissionFeatures(
         PermissionFeature(role = "admin", rule = "all"),
+        PermissionFeature(role = "app admin", rule = "all"),
         PermissionFeature(role = "teaching staff", rule = "all"),
         PermissionFeature(role = "student", rule = "all")
     )
