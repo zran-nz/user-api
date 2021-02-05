@@ -52,11 +52,12 @@ repositories {
 }
 
 val permissionVersion: String by project
+val emailVersion: String by project
 
 dependencies {
     api(project(":user-generated"))
     implementation("com.github.b1412:permission-api:${permissionVersion}")
-    implementation("com.github.b1412:email-api:0.1.20")
+    implementation("com.github.b1412:email-api:${emailVersion}")
 
 }
 
