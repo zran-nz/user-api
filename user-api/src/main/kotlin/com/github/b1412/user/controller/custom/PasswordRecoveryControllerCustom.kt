@@ -10,8 +10,9 @@ import com.github.b1412.generator.metadata.PermissionFeatureIgnore
 import com.github.b1412.permission.dao.UserDao
 import com.github.b1412.user.dao.PasswordRecoveryDao
 import com.github.b1412.user.entity.PasswordRecovery
-import org.springframework.beans.factory.annotation.Autowired
+import com.github.b1412.user.event.PasswordRecoveryEvent
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -24,13 +25,10 @@ import java.time.ZonedDateTime
 class PasswordRecoveryControllerCustom(
     @Value("\${spring.application.name}")
     val application: String,
-    @Autowired
+    val applicationEventPublisher: ApplicationEventPublisher,
     val cacheClient: CacheClient,
-    @Autowired
     val passwordRecoveryDao: PasswordRecoveryDao,
-    @Autowired
     val userDao: UserDao,
-    @Autowired
     val passwordEncoder: PasswordEncoder
 ) {
     @PostMapping("/apply/{username}")
@@ -50,11 +48,7 @@ class PasswordRecoveryControllerCustom(
                 val encryptId = DESUtil.encrypt(log.id!!.toString(), KEY)
                 log.encryptId = encryptId
                 passwordRecoveryDao.save(log)
-                //TODO
-//                val model = mutableMapOf(
-//                    "url" to "${host}/#/pages/password-recovery/$encryptId"
-//                )
-//                emailTemplateService.send("Password Recovery", user.email!!, model)
+                applicationEventPublisher.publishEvent(PasswordRecoveryEvent(mapOf("encryptId" to encryptId)))
                 ResponseEntity.noContent().build<Void>()
             }
         }
