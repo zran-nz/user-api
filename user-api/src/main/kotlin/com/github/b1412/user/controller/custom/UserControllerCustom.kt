@@ -1,6 +1,5 @@
 package com.github.b1412.user.controller.custom
 
-import com.github.b1412.email.service.EmailTemplateService
 import com.github.b1412.encrypt.DESUtil
 import com.github.b1412.error.ErrorDTO
 import com.github.b1412.extenstions.responseEntityOk
@@ -12,10 +11,9 @@ import com.github.b1412.permission.dao.BranchDao
 import com.github.b1412.permission.dao.RoleDao
 import com.github.b1412.permission.entity.User
 import com.github.b1412.permission.service.UserService
+import com.github.b1412.user.event.NewUserAction
 import com.github.b1412.user.event.NewUserEvent
 import org.hibernate.validator.constraints.Length
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.ResponseEntity
@@ -33,21 +31,10 @@ import javax.validation.constraints.NotEmpty
 @RestController
 @RequestMapping("/v1/user")
 class UserControllerCustom(
-    @Value("\${spring.application.name}")
-    val application: String,
-    @Value("\${permission.host}")
-    val host: String,
-    @Autowired
     val userService: UserService,
-    @Autowired
     val passwordEncoder: PasswordEncoder,
-    @Autowired
-    val emailTemplateService: EmailTemplateService,
-    @Autowired
     val roleDao: RoleDao,
-    @Autowired
     val branchDao: BranchDao,
-    @Autowired
     val applicationEventPublisher: ApplicationEventPublisher
 ) {
     @PermissionFeatureIgnore
@@ -75,23 +62,22 @@ class UserControllerCustom(
         user.role = role
         user.branch = branch
         userService.save(user)
-        val id = DESUtil.encrypt(user.id.toString(), KEY)
-        val model = mutableMapOf(
-            "url" to "${host}/#/pages/email-active/$id",
-            "username" to user.username!!
-        )
-        emailTemplateService.send("User Register", user.email!!, model)
-
+        val encryptedId = DESUtil.encrypt(user.id.toString(), KEY)
         val action = filter["action"]
-        if (action != null) {
-            applicationEventPublisher.publishEvent(
-                NewUserEvent(
-                    filter + Pair("userId", DESUtil.encrypt(user.id.toString(), KEY)),
-                    action
-                )
-            )
+        val e = if (action == null) {
+            NewUserAction.REGISTRATION
+        } else {
+            NewUserAction.valueOf(action)
         }
-        val uriComponents = b.path("{id}").buildAndExpand(id)
+
+        applicationEventPublisher.publishEvent(
+            NewUserEvent(
+                filter + Pair("userId", encryptedId),
+                e
+            )
+        )
+
+        val uriComponents = b.path("{id}").buildAndExpand(encryptedId)
         return ResponseEntity.created(uriComponents.toUri()).build<Void>()
     }
 

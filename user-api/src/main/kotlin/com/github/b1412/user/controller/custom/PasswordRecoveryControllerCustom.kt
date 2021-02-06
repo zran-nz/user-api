@@ -3,7 +3,6 @@ package com.github.b1412.user.controller.custom
 import arrow.core.Either.Left
 import arrow.core.Either.Right
 import com.github.b1412.cache.CacheClient
-import com.github.b1412.email.service.EmailTemplateService
 import com.github.b1412.encrypt.DESUtil
 import com.github.b1412.error.ErrorDTO
 import com.github.b1412.extenstions.responseEntityOk
@@ -25,8 +24,6 @@ import java.time.ZonedDateTime
 class PasswordRecoveryControllerCustom(
     @Value("\${spring.application.name}")
     val application: String,
-    @Value("\${permission.host}")
-    val host: String,
     @Autowired
     val cacheClient: CacheClient,
     @Autowired
@@ -34,9 +31,7 @@ class PasswordRecoveryControllerCustom(
     @Autowired
     val userDao: UserDao,
     @Autowired
-    val passwordEncoder: PasswordEncoder,
-    @Autowired
-    val emailTemplateService: EmailTemplateService
+    val passwordEncoder: PasswordEncoder
 ) {
     @PostMapping("/apply/{username}")
     @ResponseBody
@@ -55,11 +50,11 @@ class PasswordRecoveryControllerCustom(
                 val encryptId = DESUtil.encrypt(log.id!!.toString(), KEY)
                 log.encryptId = encryptId
                 passwordRecoveryDao.save(log)
-
-                val model = mutableMapOf(
-                    "url" to "${host}/#/pages/password-recovery/$encryptId"
-                )
-                emailTemplateService.send("Password Recovery", user.email!!, model)
+                //TODO
+//                val model = mutableMapOf(
+//                    "url" to "${host}/#/pages/password-recovery/$encryptId"
+//                )
+//                emailTemplateService.send("Password Recovery", user.email!!, model)
                 ResponseEntity.noContent().build<Void>()
             }
         }

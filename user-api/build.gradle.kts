@@ -3,7 +3,6 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
     val kotlinVersion = "1.4.20"
-
     jacoco
     id("org.springframework.boot") version "2.4.0"
     id("io.spring.dependency-management") version "1.0.10.RELEASE"
@@ -42,13 +41,6 @@ repositories {
             password = System.getenv("GITHUB_TOKEN")
         }
     }
-    maven {
-        url = uri("https://maven.pkg.github.com/b1412/email-api")
-        credentials {
-            username = System.getenv("GITHUB_ACTOR")
-            password = System.getenv("GITHUB_TOKEN")
-        }
-    }
 }
 
 val permissionVersion: String by project
@@ -57,8 +49,6 @@ val emailVersion: String by project
 dependencies {
     api(project(":user-generated"))
     implementation("com.github.b1412:permission-api:${permissionVersion}")
-    implementation("com.github.b1412:email-api:${emailVersion}")
-
 }
 
 tasks.withType<KotlinCompile> {
