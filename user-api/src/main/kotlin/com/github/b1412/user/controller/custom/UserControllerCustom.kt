@@ -1,5 +1,6 @@
 package com.github.b1412.user.controller.custom
 
+import com.github.b1412.cache.CacheClient
 import com.github.b1412.encrypt.DESUtil
 import com.github.b1412.error.ErrorDTO
 import com.github.b1412.extenstions.responseEntityOk
@@ -14,6 +15,7 @@ import com.github.b1412.permission.service.UserService
 import com.github.b1412.user.event.NewUserAction
 import com.github.b1412.user.event.NewUserEvent
 import org.hibernate.validator.constraints.Length
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.ResponseEntity
@@ -35,7 +37,10 @@ class UserControllerCustom(
     val passwordEncoder: PasswordEncoder,
     val roleDao: RoleDao,
     val branchDao: BranchDao,
-    val applicationEventPublisher: ApplicationEventPublisher
+    val cacheClient: CacheClient,
+    val applicationEventPublisher: ApplicationEventPublisher,
+    @Value("\${spring.application.name}")
+    val application: String,
 ) {
     @PermissionFeatureIgnore
     @PostMapping("/register")
@@ -141,13 +146,13 @@ class UserControllerCustom(
 
         var user = SecurityContextHolder.getContext().authentication.principal as User
         // user = userService.findByIdOrNull(user.id)!!
-        user = userService.searchOneBy(mapOf("username" to user.username!!)).orNull()!!
+        user = userService.searchOneBy(mapOf("username_eq" to user.username!!)).orNull()!!
         if (passwordEncoder.matches(passwordChange.oldPassword, user.password).not()) {
             return ResponseEntity.badRequest().body(ErrorDTO(message = "oldPassword not correct"))
         }
         user.setPassword(passwordEncoder.encode(passwordChange.newPassword))
         userService.save(user)
-        //  cacheClient.deleteByPattern("*$application-${user.username}*".toLowerCase())
+        cacheClient.deleteByPattern("*$application-${user.username}*".toLowerCase())
         return ResponseEntity.ok().build<Void>()
     }
 
